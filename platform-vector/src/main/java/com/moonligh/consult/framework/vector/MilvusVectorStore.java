@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.milvus.client.MilvusClient;
 import io.milvus.client.MilvusServiceClient;
 import io.milvus.grpc.DataType;
 import io.milvus.grpc.SearchResults;
@@ -38,7 +39,7 @@ public class MilvusVectorStore implements VectorStore {
     private final VectorProperties properties;
     private final BailianEmbeddingClient embedding;
     private final Set<String> ready = ConcurrentHashMap.newKeySet();
-    private MilvusServiceClient client;
+    private MilvusClient client;
 
     public MilvusVectorStore(VectorProperties properties) {
         this.properties = properties;
@@ -223,7 +224,7 @@ public class MilvusVectorStore implements VectorStore {
                     .withHost(properties.getHost())
                     .withPort(properties.getPort())
                     .withConnectTimeout(3, TimeUnit.SECONDS)
-                    .build());
+                    .build()).withRetry(1);
             return true;
         } catch (RuntimeException error) {
             log.warn("向量库连不上 type={}", error.getClass().getSimpleName());
