@@ -24,7 +24,9 @@ clinical-record            ← 临床事实与当前快照
 | `platform-redis` | Redis / Redisson |
 | `platform-mq` | RocketMQ |
 | `platform-job` | XXL-JOB |
-| `platform-model` | 跨服务可共享模型 |
+| `platform-model` | 对话网关（限流、熔断、缓存） |
+| `platform-ocr` | 图片进、文字出 |
+| `platform-vector` | 文本向量化与 Milvus 读写、通用/法条切分 |
 | `platform-observability` | 观测 |
 | `platform-gateway` | Gateway 横切：限流、在途、Trace、JWT（不含业务路由） |
 
@@ -34,6 +36,8 @@ Maven 坐标：`com.moonligh:platform-*`。Java 包名暂保持 `com.moonligh.co
 
 - `moonligh.gateway`：网关匿名路径、staff 前缀、限流
 - `consult.auth`：JWT、内部令牌、AccountAuth 开放/staff 路径
+- `model` / `model.ocr`：对话与 OCR
+- `consult.vector`：向量模型与 Milvus
 
 
 

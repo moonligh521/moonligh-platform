@@ -26,6 +26,8 @@
         <module>platform-job</module>
         <module>platform-redis</module>
         <module>platform-model</module>
+        <module>platform-ocr</module>
+        <module>platform-vector</module>
         <module>platform-mq</module>
         <module>platform-observability</module>
         <module>platform-gateway</module>

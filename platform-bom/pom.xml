@@ -49,6 +49,16 @@
             </dependency>
             <dependency>
                 <groupId>com.moonligh</groupId>
+                <artifactId>platform-ocr</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.moonligh</groupId>
+                <artifactId>platform-vector</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.moonligh</groupId>
                 <artifactId>platform-mq</artifactId>
                 <version>${project.version}</version>
             </dependency>
