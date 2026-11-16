@@ -21,6 +21,7 @@ import io.milvus.param.MetricType;
 import io.milvus.param.R;
 import io.milvus.param.collection.CreateCollectionParam;
 import io.milvus.param.collection.FieldType;
+import io.milvus.param.collection.FlushParam;
 import io.milvus.param.collection.HasCollectionParam;
 import io.milvus.param.collection.LoadCollectionParam;
 import io.milvus.grpc.QueryResults;
@@ -72,7 +73,14 @@ public class MilvusVectorStore implements VectorStore {
                 .build());
         if (response.getStatus() != R.Status.Success.getCode()) {
             ready.remove(document.collection());
-            log.warn("向量写入失败 collection={}", document.collection());
+            log.warn("向量写入失败 collection={} status={}", document.collection(), response.getStatus());
+            return;
+        }
+        R<?> flushed = client.flush(FlushParam.newBuilder()
+                .withCollectionNames(List.of(document.collection()))
+                .build());
+        if (flushed.getStatus() != R.Status.Success.getCode()) {
+            log.warn("向量 flush 失败 collection={} status={}", document.collection(), flushed.getStatus());
         }
     }
 
