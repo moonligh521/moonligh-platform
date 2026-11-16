@@ -22,9 +22,12 @@ import io.milvus.param.collection.CreateCollectionParam;
 import io.milvus.param.collection.FieldType;
 import io.milvus.param.collection.HasCollectionParam;
 import io.milvus.param.collection.LoadCollectionParam;
+import io.milvus.grpc.QueryResults;
+import io.milvus.param.dml.QueryParam;
 import io.milvus.param.dml.SearchParam;
 import io.milvus.param.dml.UpsertParam;
 import io.milvus.param.index.CreateIndexParam;
+import io.milvus.response.QueryResultsWrapper;
 import io.milvus.response.SearchResultsWrapper;
 
 /** 把调用方切好的一条写入 Milvus，查询只返回主键。连不上时返回空。 */
@@ -75,7 +78,7 @@ public class MilvusVectorStore implements VectorStore {
     @Override
     public List<String> search(String collection, float[] vector, String filter, int limit) {
         if (!properties.isEnabled() || blank(collection) || vector == null || vector.length != EmbeddingPayload.DIMENSION
-                || !connected()) {
+                || !connected() || !loadExisting(collection)) {
             return List.of();
         }
         SearchParam.Builder query = SearchParam.newBuilder()
@@ -101,6 +104,58 @@ public class MilvusVectorStore implements VectorStore {
             }
         }
         return found;
+    }
+
+    @Override
+    public List<String> query(String collection, String filter, int limit) {
+        if (!properties.isEnabled() || blank(collection) || blank(filter) || !connected() || !loadExisting(collection)) {
+            return List.of();
+        }
+        R<QueryResults> response = client.query(QueryParam.newBuilder()
+                .withCollectionName(collection)
+                .withExpr(filter)
+                .withOutFields(List.of("id"))
+                .withLimit((long) Math.max(1, limit))
+                .build());
+        if (response.getStatus() != R.Status.Success.getCode() || response.getData() == null) {
+            return List.of();
+        }
+        List<?> ids = new QueryResultsWrapper(response.getData()).getFieldWrapper("id").getFieldData();
+        List<String> found = new ArrayList<>();
+        if (ids != null) {
+            for (Object id : ids) {
+                found.add(String.valueOf(id));
+            }
+        }
+        return found;
+    }
+
+    private boolean loadExisting(String collection) {
+        if (ready.contains(collection)) {
+            return true;
+        }
+        if (!connected()) {
+            return false;
+        }
+        try {
+            R<Boolean> exists = client.hasCollection(HasCollectionParam.newBuilder()
+                    .withCollectionName(collection)
+                    .build());
+            if (exists.getStatus() != R.Status.Success.getCode() || !Boolean.TRUE.equals(exists.getData())) {
+                return false;
+            }
+            R<?> loaded = client.loadCollection(LoadCollectionParam.newBuilder()
+                    .withCollectionName(collection)
+                    .build());
+            if (loaded.getStatus() != R.Status.Success.getCode()) {
+                return false;
+            }
+            ready.add(collection);
+            return true;
+        } catch (RuntimeException error) {
+            log.warn("向量集合不可用 collection={} type={}", collection, error.getClass().getSimpleName());
+            return false;
+        }
     }
 
     private synchronized boolean ensure(VectorDocument document) {

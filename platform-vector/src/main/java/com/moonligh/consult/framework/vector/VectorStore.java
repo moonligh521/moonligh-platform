@@ -10,4 +10,7 @@ public interface VectorStore {
     void save(VectorDocument document);
 
     List<String> search(String collection, float[] vector, String filter, int limit);
+
+    /** 仅按过滤条件取主键。filter 为空时返回空，避免全表扫描。 */
+    List<String> query(String collection, String filter, int limit);
 }
