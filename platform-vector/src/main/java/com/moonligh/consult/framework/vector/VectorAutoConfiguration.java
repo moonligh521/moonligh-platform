@@ -15,4 +15,10 @@ public class VectorAutoConfiguration {
     public VectorStore vectorStore(VectorProperties properties) {
         return new MilvusVectorStore(properties);
     }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public TextReranker textReranker(VectorProperties properties) {
+        return new BailianRerankClient(properties);
+    }
 }
