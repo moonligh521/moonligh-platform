@@ -2,7 +2,7 @@ package com.moonligh.consult.framework;
 
 /**
  * 业务错误码，失败时放在 Result 的 code 里。
- * 1xxx 通用，11xx～13xx 挂号，21xx～30xx 营养，31xx 临床数据仓库。接口和数据库都传数字。
+ * 1xxx 通用，11xx～13xx 挂号，21xx～30xx 营养，31xx 临床数据仓库，41xx 报告解读。接口和数据库都传数字。
  */
 public enum ErrorCode {
 
@@ -78,7 +78,19 @@ public enum ErrorCode {
 
     /** 临床数据仓库 31xx。 */
     CHART_FACT_REJECTED(3101, "临床事实未接受"),
-    CHART_UNAVAILABLE(3102, "病情档案暂不可用");
+    CHART_UNAVAILABLE(3102, "病情档案暂不可用"),
+
+    /** 报告解读 41xx。 */
+    REPORT_TYPE_UNSUPPORTED(4101, "不支持的报告类型"),
+    REPORT_PARSE_FAILED(4102, "解析失败或置信过低"),
+    REPORT_PATIENT_INVALID(4103, "就诊人校验失败"),
+    REPORT_KB_UNAVAILABLE(4104, "知识库不可用且不允许无依据解读"),
+    REPORT_CRITICAL_HIT(4105, "危急值命中"),
+    REPORT_RULE_PENDING_REVIEW(4106, "规则适用条件不足，待复核"),
+    REPORT_INTERPRETATION_INVALID(4107, "解读校验未通过"),
+    REPORT_IDENTITY_CONFLICT(4108, "报告身份与就诊人冲突"),
+    REPORT_CRITICAL_COVERAGE_UNKNOWN(4109, "危急覆盖未知，不能判定安全"),
+    REPORT_IDENTITY_MISSING(4110, "身份缺失，禁止自动归档");
 
     /** 放进 Result.code 的数字。 */
     private final int code;
